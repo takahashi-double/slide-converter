@@ -66,7 +66,10 @@ export default function Home() {
       formData.append('file', compressed);
       formData.append('style', style);
 
-      const res = await fetch('/api/convert', { method: 'POST', body: formData });
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 55000);
+      const res = await fetch('/api/convert', { method: 'POST', body: formData, signal: controller.signal });
+      clearTimeout(timeout);
       if (!res.ok) {
         const d = await res.json();
         throw new Error(d.error || 'サーバーエラーが発生しました');
