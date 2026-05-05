@@ -2,6 +2,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 
 const FREE_LIMIT = 3;
+const MONTHLY_LIMIT = 50;
 const STORAGE_KEY = 'slideai_usage';
 
 function getUsage(): number {
