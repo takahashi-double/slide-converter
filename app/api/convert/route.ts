@@ -18,8 +18,8 @@ export async function POST(req: NextRequest) {
       : { type: 'image', source: { type: 'base64', media_type: file.type, data: base64 } };
     const prompt = `この${isPdf ? 'PDF' : '画像'}を解析しスライド構成を作成してください。スタイル:${style}。JSON形式のみで返答:{"title":"タイトル","slides":[{"type":"title","title":"タイトル","subtitle":"サブ","body":"本文","bullets":["項目1"]}]}ルール:全テキスト抽出。3〜12枚。1枚目はtype:title。日本語で出力。`;
     const message = await client.messages.create({
-      model: 'claude-haiku-4-5',
-      max_tokens: 2000,
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1000,
       messages: [{ role: 'user', content: [contentBlock, { type: 'text', text: prompt }] }]
     });
     const text = message.content.filter((b: any) => b.type === 'text').map((b: any) => b.text).join('');
