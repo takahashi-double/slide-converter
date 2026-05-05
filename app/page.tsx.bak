@@ -62,8 +62,7 @@ export default function Home() {
 
     try {
       const formData = new FormData();
-      const compressed = await compressImage(file);
-      formData.append('file', compressed);
+      formData.append('file', file);
       formData.append('style', style);
 
       const res = await fetch('/api/convert', { method: 'POST', body: formData });
@@ -337,31 +336,6 @@ export default function Home() {
 }
 
 // Browser-side PPTX builder
-
-async function compressImage(file: File): Promise<File> {
-  if (file.type === 'application/pdf') return file;
-  return new Promise((resolve) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      let w = img.width, h = img.height;
-      const MAX = 1200;
-      if (w > MAX || h > MAX) {
-        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
-        else { w = Math.round(w * MAX / h); h = MAX; }
-      }
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d')!.drawImage(img, 0, 0, w, h);
-      canvas.toBlob((blob) => {
-        URL.revokeObjectURL(url);
-        resolve(new File([blob!], file.name, { type: 'image/jpeg' }));
-      }, 'image/jpeg', 0.7);
-    };
-    img.src = url;
-  });
-}
-
 async function buildAndDownload(data: SlideData, fileName: string, style: string) {
   const script = document.createElement('script');
   script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.js';
