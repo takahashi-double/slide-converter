@@ -1,50 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 
-export const config = { api: { bodyParser: false } };
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
-export async function POST(req: NextRequest) {
-  try {
-    const formData = await req.formData();
-    const file = formData.get('file') as File;
-    const style = (formData.get('style') as string) || 'professional';
-
-    if (!file) {
-      return NextResponse.json({ error: 'ファイルが見つかりません' }, { status: 400 });
-    }
-
-    if (file.size > 20 * 1024 * 1024) {
-      return NextResponse.json({ error: 'ファイルサイズは20MB以下にしてください' }, { status: 400 });
-    }
-
-    const bytes = await file.arrayBuffer();
-    const base64 = Buffer.from(bytes).toString('base64');
-    const isPdf = file.type === 'application/pdf';
-    const mediaType = file.type as 'application/pdf' | 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
-
-    const contentBlock: any = isPdf
-      ? { type: 'document', source: { type: 'base64', media_type: mediaType, data: base64 } }
-      : { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } };
-
-    const prompt = `あなたはプレゼンテーションデザイナーです。この${isPdf ? 'PDFドキュメント' : '画像'}を解析し、全ての内容を抽出してスライド構成を作成してください。
-
-スタイル: ${style}
-
-以下のJSON形式のみで返答してください（マークダウン・バッククォート不要）:
-{
-  "title": "プレゼンタイトル",
-  "slides": [
-    {
-      "type": "title",
-      "title": "スライドタイトル",
-      "subtitle": "サブタイトル（任意）",
-      "body": "本文",
-      "bullets": ["箇条書き1", "箇条書き2"]
-    }
-  ]
-}
 
 ルール:
 - 全テキスト・構造を漏れなく抽出
