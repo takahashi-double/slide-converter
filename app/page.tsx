@@ -66,15 +66,20 @@ export default function Home() {
       formData.append('file', compressed);
       formData.append('style', style);
 
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 55000);
-      const res = await fetch('/api/convert', { method: 'POST', body: formData, signal: controller.signal });
-      clearTimeout(timeout);
+      const res = await fetch('/api/convert', { method: 'POST', body: formData });
       if (!res.ok) {
         const d = await res.json();
         throw new Error(d.error || 'サーバーエラーが発生しました');
       }
-      const data = await res.json();
+      const { jobId } = await res.json();
+      let data = null;
+      while (true) {
+        await new Promise(r => setTimeout(r, 2000));
+        const poll = await fetch('/api/convert?jobId=' + jobId);
+        const pollData = await poll.json();
+        if (pollData.status === 'done') { data = pollData.result; break; }
+        if (pollData.status === 'error') throw new Error(pollData.error);
+      }
       setSlides(data);
       setStep('building');
 
