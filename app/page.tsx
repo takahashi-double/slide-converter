@@ -71,15 +71,7 @@ export default function Home() {
         const d = await res.json();
         throw new Error(d.error || 'サーバーエラーが発生しました');
       }
-      const { jobId } = await res.json();
-      let data = null;
-      while (true) {
-        await new Promise(r => setTimeout(r, 2000));
-        const poll = await fetch('/api/convert?jobId=' + jobId);
-        const pollData = await poll.json();
-        if (pollData.status === 'done') { data = pollData.result; break; }
-        if (pollData.status === 'error') throw new Error(pollData.error);
-      }
+      const data = await res.json();
       setSlides(data);
       setStep('building');
 
